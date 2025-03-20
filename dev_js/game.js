@@ -1,14 +1,28 @@
-import { Container, TilingSprite, Text, Sprite } from "pixi.js"
+import { Container } from "pixi.js"
 import { EventHub, events } from './engine/events'
 import { getAppScreen, sceneAdd } from "./engine/application"
-import { sprites } from "./engine/loader"
 import { CEIL_SIZE, CEIL_HALF_SIZE, DIRECTION, BUTTON }  from "./constants"
 import Background from "./game/Background"
 import Ceil from './game/Ceil'
 import Fox from './game/Fox'
 import Button from './game/Button'
+import Flower from "./game/Flower"
+import Butterfly from "./game/Butterfly"
 
 let game = null
+
+let flowerListCounter = [false, true, false]
+let flowerCountSize = flowerListCounter.length
+let flowerCountIndex = 0 // Math.floor(Math.random() * flowerCountSize)
+let isFlowerToLeft = Math.random() < 0.5 ? true : false
+function checkFlowerInPoint() {
+    flowerCountIndex++
+    if (flowerCountIndex === flowerCountSize) flowerCountIndex = 0
+    if (flowerListCounter[flowerCountIndex]) isFlowerToLeft = !isFlowerToLeft
+    return flowerListCounter[flowerCountIndex]
+}
+
+let bfColorsList = ['blue', 'purple', 'white', 'yellow']
 
 export default function startGame(gameData) {
     if (game) game.reset(gameData)
@@ -20,14 +34,35 @@ class Game {
         this.bg = new Background()
         sceneAdd(this.bg)
 
-        this.ceilContainer = new Container()
-        this.unitContainer = new Container()
-        this.fillCeils(gameData)
-        sceneAdd(this.ceilContainer, this.unitContainer)
+        this.worldContainer = new Container()
+        sceneAdd(this.worldContainer)
 
-        this.controlContainer = new Container()
-        this.fillControl(gameData)
-        sceneAdd(this.controlContainer)
+        this.ceilContainer = new Container()
+        this.flowersContainer = new Container()
+        this.flowersContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
+        this.unitContainer = new Container()
+        this.unitContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
+        this.skyContainer = new Container()
+        this.skyContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
+        this.worldContainer.addChild(this.ceilContainer, this.flowersContainer, this.unitContainer, this.skyContainer)
+
+        this.fillWorld(gameData)
+
+        for(var bf = 0; bf < 4; bf++) {
+            this.skyContainer.addChild(
+                new Butterfly(
+                    this.width,
+                    this.height,
+                    bfColorsList[ bf % bfColorsList.length ],
+                    this.flowersContainer.children,
+                    this.skyContainer
+                )
+            )
+        }
+
+        this.UIContainer = new Container()
+        this.fillUI(gameData)
+        sceneAdd(this.UIContainer)
 
         EventHub.on( events.screenResize, this.screenResize, this )
 
@@ -48,23 +83,20 @@ class Game {
         let scale = scaleX < scaleY ? scaleX : scaleY
         if (scale > 1) scale = 1
 
+        this.worldContainer.scale.set( scale )
+
         const gameScaledWidth = gameWidth * scale
-
-        this.ceilContainer.scale.set( scale )
-        this.unitContainer.scale.set( scale )
-
         const offsetX = (screenData.width - gameScaledWidth) * 0.5
         const halfCeilScaled = CEIL_HALF_SIZE * scale
-        this.ceilContainer.position.set(offsetX + halfCeilScaled, quarterScreenHeight + halfCeilScaled)
-        this.unitContainer.position.set(offsetX + halfCeilScaled * 2, quarterScreenHeight + halfCeilScaled * 2)
+        this.worldContainer.position.set(offsetX + halfCeilScaled, quarterScreenHeight + halfCeilScaled)
 
         const buttonsScale = quarterScreenHeight > BUTTON.size * 2 ? 1 : quarterScreenHeight / (BUTTON.size * 2)
         const offsetButtonsX = (screenData.width - BUTTON.size * 3 * buttonsScale) * 0.5
-        this.controlContainer.scale.set(buttonsScale)
-        this.controlContainer.position.set(offsetButtonsX, quarterScreenHeight + halfScreenHeight - halfCeilScaled * 0.5)
+        this.UIContainer.scale.set(buttonsScale)
+        this.UIContainer.position.set(offsetButtonsX, quarterScreenHeight + halfScreenHeight - halfCeilScaled * 0.5)
     }
 
-    fillControl(gameData) {
+    fillUI(gameData) {
         if (gameData.commands.length === 0) {
             this.controlWidth = BUTTON.size * 3
             this.controlHeight = BUTTON.size * 2
@@ -73,12 +105,12 @@ class Game {
             this.btnDown = new Button(BUTTON.size * 1.5, BUTTON.size * 1.5, DIRECTION.down)
             this.btnLeft = new Button(BUTTON.size * 0.5, BUTTON.size * 1, DIRECTION.left)
             this.btnRight = new Button(BUTTON.size * 2.5, BUTTON.size * 1, DIRECTION.right)
-            this.controlContainer.addChild(this.btnUp, this.btnDown, this.btnLeft, this.btnRight)
+            this.UIContainer.addChild(this.btnUp, this.btnDown, this.btnLeft, this.btnRight)
         }
         else alert('Game.fillControl(gameData) - Не заполнено поведение на различные команды')
     }
 
-    fillCeils(gameData) {
+    fillWorld(gameData) {
         
         this.height = gameData.map.length * CEIL_SIZE
         this.width = gameData.map[0].length * CEIL_SIZE
@@ -88,10 +120,16 @@ class Game {
             const y = stepY * CEIL_SIZE
 
             for(var stepX = 0;  stepX < gameData.map[stepY].length; stepX++) {
-                const ceilChar = gameData.map[stepY][stepX]
-                if (ceilChar === ' ') continue
-
                 const x = stepX * CEIL_SIZE
+
+                const ceilChar = gameData.map[stepY][stepX]
+
+                if (ceilChar === ' ') {
+                    if (checkFlowerInPoint()) {
+                        this.flowersContainer.addChild( new Flower(x, y, isFlowerToLeft) )
+                    }
+                    continue
+                }
                 
                 const ceil = new Ceil(x, y)
                 this.ceilContainer.addChild( ceil )

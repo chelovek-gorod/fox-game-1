@@ -11,9 +11,14 @@ export const sprites = {
     tile_bg_top: 'tile_bg_top.png',
     tile_bg_bottom: 'tile_bg_bottom.png',
 
-    ceil: 'ceil_.png',
+    ceil: 'ceil_100.png',
 
-    fox: 'fox.png',
+    fox: 'fox_all.json',
+    flower: 'flower.png',
+    bf_yellow: 'butterfly_yellow.json',
+    bf_white: 'butterfly_white.json',
+    bf_purple: 'butterfly_purple.json',
+    bf_blue: 'butterfly_blue.json',
 
     button: 'wood_button.png',
     button_arrow: 'wood_arrow.png',
