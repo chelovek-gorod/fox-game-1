@@ -14,6 +14,22 @@ export const sprites = {
     ceil: 'ceil_100.png',
 
     fox: 'fox_all.json',
+    star_blue: 'star_blue.png',
+    star_purple: 'star_purple.png',
+    star_yellow: 'star_yellow.png',
+    star_white: 'star_white.png',
+    star_green: 'star_green.png',
+
+    target_1: 'target_1.png',
+    target_2: 'target_2.png',
+    target_3: 'target_3.png',
+    target_4: 'target_4.png',
+    target_5: 'target_5.png',
+    target_6: 'target_6.png',
+    target_7: 'target_7.png',
+    target_8: 'target_8.png',
+    target_9: 'target_9.png',
+
     flower: 'flower.png',
     bf_yellow: 'butterfly_yellow.json',
     bf_white: 'butterfly_white.json',

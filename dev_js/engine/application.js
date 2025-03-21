@@ -73,11 +73,14 @@ let isOnFocus = true
 window.addEventListener('focus', () => focusOnChange(true))
 window.addEventListener('blur', () => focusOnChange(false))
 if ('hidden' in document) document.addEventListener('visibilitychange', visibilityOnChange)
-function visibilityOnChange( isHide ) {
-    isOnFocus = !isHide
+function visibilityOnChange( ) {
+    focusOnChange( document.visibilityState === 'visible' )
 }
 function focusOnChange( isOn ) {
     isOnFocus = isOn
+
+    if (isOnFocus) startTicker()
+    else stopTicker()
 }
 
 export function checkFocus() {
@@ -95,7 +98,7 @@ export function startTicker() {
 }
 
 function tick(time) {
-    if (!isTick) return
+    if (!isTick || document.visibilityState !== 'visible') return
     // if (delta = 1) -> FPS = 60 (16.66ms per frame)
     tickerArr.forEach( element => element.tick(time) )
     // time.elapsedMS - in milliseconds

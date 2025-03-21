@@ -2,7 +2,7 @@ import { AnimatedSprite } from "pixi.js";
 import { sprites } from "../engine/loader"
 import { tickerAdd, tickerRemove } from "../engine/application";
 import { getDistance, moveSprite, turnSpriteToTarget } from '../functions';
-import { BUTTERFLY, CEIL_HALF_SIZE } from "../constants";
+import { BUTTERFLY, CEIL_HALF_SIZE, _2PI } from "../constants";
 
 export default class Butterfly extends AnimatedSprite {
     constructor(width, height, color, flowers, container) {
@@ -19,7 +19,7 @@ export default class Butterfly extends AnimatedSprite {
         this.areaWidth = width
         this.areaHeight = height
 
-        this.rotation = (Math.PI * 2) * Math.random()
+        this.rotation = _2PI * Math.random()
 
         this.isOnFlower = false
         this.targetFlower = undefined
@@ -64,7 +64,7 @@ export default class Butterfly extends AnimatedSprite {
                 currentFlower.isEmpty = true
                 tickerAdd(this)
                 this.container.addChild(this)
-            }, 3000 + Math.random() * 5000 )
+            }, BUTTERFLY.landingTimeoutMin + Math.random() * BUTTERFLY.landingTimeoutDelta )
         }
     }
 

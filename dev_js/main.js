@@ -6,12 +6,13 @@ const gameContainer = document.querySelector('div')
 export let defaultGameData = {
     map: [
         [' ', ' ', ' ', '2', ' ', ' ', ' ',],
-        ['F', '*', '*', '*', '*', '*', 'X',],
+        ['F', '*', '*', '*', '*', '*', '4',],
         [' ', ' ', '3', ' ', '1', ' ', ' ',],
     ],
     commands: [
         /* if empty - use arrows as joystick */
-    ]
+    ],
+    magicLevel : 3
 }
 
 initApp( gameContainer, () => startGame(defaultGameData) )

@@ -1387,7 +1387,7 @@
     "turn_from_right_to_down": ["rotation_13","rotation_14","rotation_15","rotation_16","rotation_0"],
     "turn_from_right_to_up": ["rotation_13","rotation_12","rotation_11","rotation_10","rotation_9"],
     "turn_from_right_to_left": ["rotation_13","rotation_14","rotation_15","rotation_16","rotation_0","rotation_1","rotation_2","rotation_3","rotation_4"],
-	"win": ["win_1","win_2","win_3","win_4","win_5","win_6","win_7","win_8","win_9","win_10","win_11","win_12","win_13","win_14","win_15","win_16","win_17","win_18","win_19","win_20","win_21","win_22","win_23"]
+	"win": ["win_1","win_2","win_3","win_4","win_5","win_6","win_7","win_8","win_9","win_10","win_11","win_12","win_13","win_14","win_15","win_16","win_17","win_18","win_19","win_20","win_21","win_22","win_23","idle_1","idle_2","idle_3","idle_4","idle_5","idle_6","idle_7","idle_8","idle_9","idle_10","idle_11","idle_12","idle_13","idle_14","idle_15","idle_16","idle_17","idle_18","idle_19","idle_20","idle_21","idle_22","idle_23","idle_24","idle_25","idle_26","idle_27","idle_28","idle_29","idle_30","idle_31","idle_32","idle_33","idle_34","idle_35","idle_36","idle_37","idle_38"]
 },
 "meta": {
 	"image": "fox_all.png",

@@ -8,11 +8,12 @@ import Fox from './game/Fox'
 import Button from './game/Button'
 import Flower from "./game/Flower"
 import Butterfly from "./game/Butterfly"
+import TargetNumber from "./game/TargetNumber"
 
 let game = null
 
-let flowerListCounter = [false, true, false]
-let flowerCountSize = flowerListCounter.length
+const flowerListCounter = [false, true, false]
+const flowerCountSize = flowerListCounter.length
 let flowerCountIndex = 0 // Math.floor(Math.random() * flowerCountSize)
 let isFlowerToLeft = Math.random() < 0.5 ? true : false
 function checkFlowerInPoint() {
@@ -22,7 +23,7 @@ function checkFlowerInPoint() {
     return flowerListCounter[flowerCountIndex]
 }
 
-let bfColorsList = ['blue', 'purple', 'white', 'yellow']
+const bfColorsList = ['blue', 'purple', 'white', 'yellow']
 
 export default function startGame(gameData) {
     if (game) game.reset(gameData)
@@ -34,17 +35,30 @@ class Game {
         this.bg = new Background()
         sceneAdd(this.bg)
 
+        this.fox = null
+
         this.worldContainer = new Container()
         sceneAdd(this.worldContainer)
 
         this.ceilContainer = new Container()
         this.flowersContainer = new Container()
         this.flowersContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
+        this.targetContainer = new Container()
+        this.targetContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
         this.unitContainer = new Container()
         this.unitContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
+        this.starContainer = new Container()
+        this.starContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
         this.skyContainer = new Container()
         this.skyContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
-        this.worldContainer.addChild(this.ceilContainer, this.flowersContainer, this.unitContainer, this.skyContainer)
+        this.worldContainer.addChild(
+            this.ceilContainer,
+            this.flowersContainer,
+            this.targetContainer,
+            this.unitContainer,
+            this.starContainer, 
+            this.skyContainer
+        )
 
         this.fillWorld(gameData)
 
@@ -115,6 +129,8 @@ class Game {
         this.height = gameData.map.length * CEIL_SIZE
         this.width = gameData.map[0].length * CEIL_SIZE
 
+        const numbers = []
+
         for(var stepY = 0;  stepY < gameData.map.length; stepY++) {
 
             const y = stepY * CEIL_SIZE
@@ -137,12 +153,35 @@ class Game {
                 switch(ceilChar) {
                     case 'F' :
                     case 'f' :
-                        this.fox = new Fox(x, y, this.ceilContainer.children)
+                        this.fox = new Fox(
+                            x, y,
+                            this.ceilContainer.children,
+                            this.targetContainer.children,
+                            gameData.magicLevel,
+                            this.starContainer
+                            )
                         this.unitContainer.addChild(this.fox)
+                    break
+
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '8':
+                        numbers.push(+ceilChar)
+                        this.targetContainer.addChild(
+                            new TargetNumber( x, y, +ceilChar, this.skyContainer, bfColorsList )
+                        )
                     break
                 }
             }
         }
+
+        if (this.fox && numbers.length) this.fox.setTargetNumbers(numbers, this.targetContainer)
     }
 }
 
