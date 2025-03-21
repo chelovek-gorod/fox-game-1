@@ -8,10 +8,310 @@
         <!-- viewport -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <!-- styles -->
-      <script type="module" crossorigin src="./assets/index-Cb-M6iBT.js"></script>
+      <script type="module" crossorigin src="./assets/index-CKEi_2Oc.js"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-f9Gfb4SE.css">
     </head>
     <body>
         <div style="width: 100vw; height: 100vh;"></div>
+
+        <script>
+            'use strict'
+
+            let gameData = {
+                map: [
+                    [' ', ' ', ' ', '2', ' ', ' ', ' ',],
+                    ['F', '*', '*', '*', '*', '*', '4',],
+                    [' ', ' ', '3', ' ', '1', ' ', ' ',],
+                ],
+                commands: [
+                    /* if empty - use arrows as joystick */
+                ],
+                magicLevel : 4
+            }
+
+            let gameDataFox = localStorage.getItem('gameDataFox')
+            if (gameDataFox) gameData = JSON.parse(gameDataFox)
+
+            /////////////////////////////////////////////////////
+
+            let isFoxOnMap = true
+            
+            const configBtn = new Image()
+            configBtn.src = './_map_config.png'
+            configBtn.style = `
+                position: absolute;
+                bottom: 12px;
+                right: 12px;
+                width: 86px;
+                cursor: pointer;
+            `
+            configBtn.onclick = showEditPopup
+            document.body.append(configBtn)
+
+            const editPopup = document.createElement('div')
+            editPopup.style = `
+                width: 800px;
+                height: 500px;
+                position: absolute;
+                top: calc(50vh - 250px);
+                left: calc(50vw - 400px);
+                background-color: white;
+                border: 6px blue solid;
+                border-radius: 24px;
+                box-shadow: 0 6px 24px 24px black;
+                display: none;
+            `
+            document.body.append(editPopup)
+
+            const closePopupBtn = document.createElement('div')
+            closePopupBtn.onclick = hideEditPopup
+            closePopupBtn.innerText = 'X'
+            closePopupBtn.style = `
+                width: 40px;
+                height: 40px;
+                line-height: 40px;
+                font-size: 40px;
+                font-weight: bold;
+                color: red;
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background-color: white;
+                border: 4px solid red;
+                border-radius: 22px;
+                text-align: center;
+                cursor: pointer;
+            `
+            editPopup.append(closePopupBtn)
+
+            function hideEditPopup() {
+                editPopup.style.display = 'none'
+            }
+
+            function showEditPopup() {
+                editPopup.style.display = 'block'
+            }
+
+            // EDITOR
+
+            // width
+            const levelWidthLabel = document.createElement('label')
+            levelWidthLabel.innerText = 'Ширина: 7'
+            levelWidthLabel.style = ` font-size: 20px; color: black;
+                position: absolute; top: 10px; left: 35px; `
+            editPopup.append(levelWidthLabel)
+
+            const levelWidthRange = document.createElement('input')
+            levelWidthRange.type = "range"
+            levelWidthRange.oninput = resizeLevel
+            levelWidthRange.step = 1
+            levelWidthRange.min = 3
+            levelWidthRange.max = 19
+            levelWidthRange.value = 7
+            levelWidthRange.style = ` position: absolute; top: 30px; left: 20px; cursor: pointer; `
+            editPopup.append(levelWidthRange)
+
+            // height
+            const levelHeightLabel = document.createElement('label')
+            levelHeightLabel.innerText = 'Высота: 3'
+            levelHeightLabel.style = ` font-size: 20px; color: black;
+                position: absolute; top: 10px; left: 175px; `
+            editPopup.append(levelHeightLabel)
+
+            const levelHeightRange = document.createElement('input')
+            levelHeightRange.type = "range"
+            levelHeightRange.oninput = resizeLevel
+            levelHeightRange.step = 1
+            levelHeightRange.min = 1
+            levelHeightRange.max = 9
+            levelHeightRange.value = 3
+            levelHeightRange.style = ` position: absolute; top: 30px; left: 160px; cursor: pointer; `
+            editPopup.append(levelHeightRange)
+
+            const map = document.createElement('div')
+            map.style = ` position: absolute; top: 60px; left: 20px; padding: 10px;
+                border: 2px solid black; border-radius: 12px; background-color: lime;`
+            editPopup.append(map)
+
+            resizeLevel()
+
+            function resizeLevel() {
+                const width = +levelWidthRange.value
+                const height = +levelHeightRange.value
+                levelWidthLabel.innerText = `Ширина: ${width}`
+                levelHeightLabel.innerText = `Высота: ${height}`
+                updateMap(width, height)
+            }
+
+            function updateMap(width, height) {
+                map.innerHTML = ''
+
+                const previousHeight = gameData.map.length
+                const previousWidth = gameData.map[0].length
+
+                gameData.map.length = height
+                if (height > previousHeight) gameData.map.fill(new Array(width).fill(' '), previousHeight)
+
+                gameData.map.forEach( (lineData, y) => {
+                    lineData.length = width
+                    if (width > previousWidth) lineData.fill(' ', previousWidth)
+
+                    const lineDiv = document.createElement('div')
+                    map.append(lineDiv)
+
+                    lineData.forEach ( (ceilData, x) => {
+                        const ceilDiv = document.createElement('div')
+                        ceilDiv.style = `display: inline-block; margin: 2px;  width: 32px; height: 32px;
+                            line-height: 32px; text-align: center; vertical-align: top;
+                            border: 2px solid black; border-radius: 6px; cursor: pointer;`
+                        ceilDiv.innerText = ceilData
+                        if (ceilData !== ' ') ceilDiv.style.backgroundColor = 'yellow'
+                        ceilDiv.onclick = () => changeCeil(x, y, ceilDiv)
+                        lineDiv.append(ceilDiv)
+                    })
+                })
+
+                if (previousHeight > height || previousWidth > width)  {
+                    isFoxOnMap = false
+                    gameData.map.forEach( y => {
+                        y.forEach( x => {
+                            if (x === 'f' || x === 'F') isFoxOnMap = true
+                        })
+                    })
+                }
+            }
+
+            function changeCeil(x, y, ceilDiv) {
+                switch(gameData.map[y][x]) {
+                    case ' ':
+                        if (isFoxOnMap) gameData.map[y][x] = '*'
+                        else {
+                            gameData.map[y][x] = 'F'
+                            isFoxOnMap = true
+                        }
+                    break
+
+                    case 'F':
+                    case 'f':
+                        gameData.map[y][x] = '*'
+                        isFoxOnMap = false
+                    break
+
+                    case '*':
+                        if (isFoxOnMap) gameData.map[y][x] = '1'
+                        else {
+                            gameData.map[y][x] = 'F'
+                            isFoxOnMap = true
+                        }
+                    break
+
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                        if (isFoxOnMap) gameData.map[y][x] = '' + ((+gameData.map[y][x]) + 1)
+                        else {
+                            gameData.map[y][x] = 'F'
+                            isFoxOnMap = true
+                        }
+                    break
+
+                    case '9':
+                        if (isFoxOnMap) gameData.map[y][x] = ' '
+                        else {
+                            gameData.map[y][x] = 'F'
+                            isFoxOnMap = true
+                        }
+                    break
+                }
+
+                ceilDiv.innerText = gameData.map[y][x]
+                ceilDiv.style.backgroundColor = (gameData.map[y][x] === ' ') ? 'lime' : 'yellow'
+            }
+
+            // magic
+            const magicLevelLabel = document.createElement('label')
+            magicLevelLabel.innerText = 'Магия: 4'
+            magicLevelLabel.style = ` font-size: 20px; color: black;
+                position: absolute; top: 10px; right: 130px; `
+            editPopup.append(magicLevelLabel)
+
+            const magicLevelRange = document.createElement('input')
+            magicLevelRange.type = "range"
+            magicLevelRange.oninput = changeMagicLevel
+            magicLevelRange.step = 1
+            magicLevelRange.min = 0
+            magicLevelRange.max = 12
+            magicLevelRange.value = 4
+            magicLevelRange.style = ` position: absolute; top: 30px; right: 100px; cursor: pointer;`
+            editPopup.append(magicLevelRange)
+
+            function changeMagicLevel() {
+                const magic = +magicLevelRange.value
+                magicLevelLabel.innerText = `Магия: ${magic}`
+                gameData.magicLevel = magic
+            }
+
+            // apply button
+            const applyButton = document.createElement('div')
+            applyButton.innerText = "ПРИМЕНИТЬ"
+            applyButton.onclick = applyGameConfig
+            applyButton.style = `
+                position: absolute;
+                width: 240px;
+                height: 40px;
+                line-height: 40px;
+                font-size: 26px;
+                font-weight: bold;
+                text-align: center;
+                color: white;
+                background-color: blue;
+                bottom: 20px;
+                right: 120px;
+                border-radius: 16px;
+                box-shadow: black 0px 6px 12px 4px;
+                cursor: pointer;
+            `
+            editPopup.append(applyButton)
+
+            function applyGameConfig() {
+                if (!isFoxOnMap) return alert('Нет клетки с Лисом!')
+
+                localStorage.setItem('gameDataFox', JSON.stringify(gameData))
+                location.reload()
+            }
+
+            // reset button
+            const resetButton = document.createElement('div')
+            resetButton.innerText = "По умолчанию"
+            resetButton.onclick = resetGameConfig
+            resetButton.style = `
+                position: absolute;
+                width: 240px;
+                height: 40px;
+                line-height: 40px;
+                font-size: 26px;
+                font-weight: bold;
+                text-align: center;
+                color: black;
+                background-color: white;
+                bottom: 20px;
+                left: 120px;
+                border-radius: 16px;
+                box-shadow: black 0px 6px 12px 4px;
+                cursor: pointer;
+            `
+            editPopup.append(resetButton)
+
+            function resetGameConfig() {
+                localStorage.removeItem('gameDataFox')
+                location.reload()
+            }
+            
+        </script>
     </body>
 </html>

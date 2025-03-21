@@ -43,7 +43,6 @@ export default class Fox extends AnimatedSprite {
 
     setTargetNumbers(numbers) {
         this.numbers = [...numbers.sort((a, b) => b - a)]
-        console.log(this.numbers)
     }
 
     getCeil(direction) {
