@@ -258,6 +258,9 @@
             magicLevelRange.style = ` position: absolute; top: 30px; right: 100px; cursor: pointer;`
             editPopup.append(magicLevelRange)
 
+            magicLevelRange.value = gameData.magicLevel
+            magicLevelLabel.innerText = `Магия: ${gameData.magicLevel}`
+
             function changeMagicLevel() {
                 const magic = +magicLevelRange.value
                 magicLevelLabel.innerText = `Магия: ${magic}`
