@@ -36,13 +36,22 @@
 
             let isFoxOnMap = true
             
-            const configBtn = new Image()
-            configBtn.src = './_map_config.png'
+            const configBtn = document.createElement('div')
+            configBtn.innerText = '☑'
             configBtn.style = `
                 position: absolute;
                 bottom: 12px;
                 right: 12px;
-                width: 86px;
+                width: 48px;
+                height: 48px;
+                line-height: 48px;
+                font-size: 36px;
+                text-align: center;
+                color: white;
+                text-shadow: black 0px 3px 4px;
+                border: 3px solid white;
+                border-radius: 26px;
+                box-shadow: black 0px 4px 12px 2px;
                 cursor: pointer;
             `
             configBtn.onclick = showEditPopup
@@ -65,13 +74,12 @@
 
             const closePopupBtn = document.createElement('div')
             closePopupBtn.onclick = hideEditPopup
-            closePopupBtn.innerText = 'X'
+            closePopupBtn.innerText = '╳'
             closePopupBtn.style = `
                 width: 40px;
                 height: 40px;
                 line-height: 40px;
-                font-size: 40px;
-                font-weight: bold;
+                font-size: 24px;
                 color: red;
                 position: absolute;
                 top: 10px;
