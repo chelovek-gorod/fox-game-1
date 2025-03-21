@@ -171,7 +171,7 @@ class Game {
                     case '6':
                     case '7':
                     case '8':
-                    case '8':
+                    case '9':
                         numbers.push(+ceilChar)
                         this.targetContainer.addChild(
                             new TargetNumber( x, y, +ceilChar, this.skyContainer, bfColorsList )
