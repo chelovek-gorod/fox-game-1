@@ -3,14 +3,9 @@ import { CEIL_HALF_SIZE, CEIL_SIZE, STAR, _2PI } from "../constants";
 import { tickerAdd, tickerRemove } from "../engine/application";
 import { sprites } from "../engine/loader"
 
-const colors = ['blue', 'purple', 'yellow', 'white', 'green']
-function getColor() {
-    return colors[ Math.floor( Math.random() * colors.length ) ]
-}
-
 export default class MagicStar extends Sprite {
-    constructor(x, y) {
-        super( sprites['star_' + getColor()] )
+    constructor(x, y, color) {
+        super( sprites['star_' + color] )
         this.anchor.set(0.5)
         const rx = -CEIL_HALF_SIZE + Math.random() * CEIL_SIZE
         const ry = -CEIL_HALF_SIZE + Math.random() * CEIL_SIZE

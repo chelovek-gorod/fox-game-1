@@ -31,6 +31,8 @@ export default class Fox extends AnimatedSprite {
         }
         this.starContainer = starContainer
 
+        this.maxColorIndex = Math.ceil(magicLevel / 3)
+        if (this.maxColorIndex > star_colors.length) this.maxColorIndex = star_colors.length
         this.starTimeout = Math.floor(1000 / magicLevel)
         this.starInterval = (magicLevel > 0) ? setInterval( this.addStar.bind(this), this.starTimeout) : null
 
@@ -38,7 +40,7 @@ export default class Fox extends AnimatedSprite {
     }
 
     addStar() {
-        const color = this.star_colors[ Math.floor( Math.random() * this.star_colors.length ) ]
+        const color = this.star_colors[ Math.floor( Math.random() * this.maxColorIndex ) ]
         this.starContainer.addChild( new MagicStar(this.x, this.y, color) )
     }
 
