@@ -30,8 +30,9 @@ export default class Fox extends AnimatedSprite {
             this.star_colors.push( star_colors[ci] )
         }
         this.starContainer = starContainer
+
         this.starTimeout = Math.floor(1000 / magicLevel)
-        this.starInterval = setInterval( this.addStar.bind(this), this.starTimeout)
+        this.starInterval = (magicLevel > 0) ? setInterval( this.addStar.bind(this), this.starTimeout) : null
 
         EventHub.on( events.getButtonClick, this.getCommand, this)
     }
