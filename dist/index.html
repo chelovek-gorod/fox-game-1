@@ -31,6 +31,7 @@
 
             let gameDataFox = localStorage.getItem('gameDataFox')
             if (gameDataFox) gameData = JSON.parse(gameDataFox)
+            console.log(gameData)
 
             /////////////////////////////////////////////////////
 
@@ -115,7 +116,7 @@
             levelWidthRange.step = 1
             levelWidthRange.min = 3
             levelWidthRange.max = 19
-            levelWidthRange.value = 7
+            levelWidthRange.value = gameData.map[0].length
             levelWidthRange.style = ` position: absolute; top: 30px; left: 20px; cursor: pointer; `
             editPopup.append(levelWidthRange)
 
@@ -132,7 +133,7 @@
             levelHeightRange.step = 1
             levelHeightRange.min = 1
             levelHeightRange.max = 9
-            levelHeightRange.value = 3
+            levelHeightRange.value = gameData.map.length
             levelHeightRange.style = ` position: absolute; top: 30px; left: 160px; cursor: pointer; `
             editPopup.append(levelHeightRange)
 
