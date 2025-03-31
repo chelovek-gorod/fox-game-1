@@ -15,7 +15,7 @@ export let defaultGameData = {
     magicLevel : 3
 }
 
-let gameDataFox = localStorage.getItem('gameDataFox')
-if (gameDataFox) defaultGameData = JSON.parse(gameDataFox)
+let gameData = localStorage.getItem('gameData')
+if (gameData) defaultGameData = JSON.parse(gameData)
 
 initApp( gameContainer, () => startGame(defaultGameData) )

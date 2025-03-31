@@ -4,18 +4,24 @@ export const EventHub = new EventEmitter()
 
 export const events = {
     screenResize: 'screenResize',
+    changeFocus: 'changeFocus',
 
     getButtonClick: 'getButtonClick',
     useButton: 'useButton',
     resetAllButtons: 'resetAllButtons',
 
+    setFoxCommands: 'setFoxCommands',
+    setBearCommands: 'setBearCommands',
+
     setLevel: 'setLevel',
-    setCommands: 'setCommands',
     restart: 'restart',
 }
 
 export function screenResize( data ) {
     EventHub.emit( events.screenResize, data )
+}
+export function changeFocus( isOnFocus ) {
+    EventHub.emit( events.changeFocus, isOnFocus )
 }
 
 export function getButtonClick( direction ) {
@@ -28,9 +34,13 @@ export function resetAllButtons() {
     EventHub.emit( events.resetAllButtons )
 }
 
-export function setCommands( data ) {
-    EventHub.emit( events.setCommands, data )
+export function setFoxCommands( data ) {
+    EventHub.emit( events.setFoxCommands, data )
 }
+export function setBearCommands( data ) {
+    EventHub.emit( events.setBearCommands, data )
+}
+
 export function setLevel( data ) {
     EventHub.emit( events.setLevel, data )
 }

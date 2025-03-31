@@ -8,7 +8,7 @@
         <!-- viewport -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <!-- styles -->
-      <script type="module" crossorigin src="./assets/index-NvRelihU.js"></script>
+      <script type="module" crossorigin src="./assets/index-DeJPB4H_.js"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-f9Gfb4SE.css">
     </head>
     <body>
@@ -23,19 +23,39 @@
                     ['F', '*', '*', '*', '*', '*', '4',],
                     [' ', ' ', '3', ' ', '1', ' ', ' ',],
                 ],
-                commands: [
-                    /* if empty - use arrows as joystick */
-                ],
-                magicLevel : 4
+                commands: [],
+                magicLevel : 4,
+                fox: {
+                    isActive: true,
+                    startCommands: [],
+                    helpCommandsCount: 0 // last commands from startCommands
+                },
+                bear: {
+                    isActive: false,
+                    startCommands: [],
+                    helpCommandsCount: 0 // last commands from startCommands
+                }
             }
 
-            let gameDataFox = localStorage.getItem('gameDataFox')
-            if (gameDataFox) gameData = JSON.parse(gameDataFox)
-            console.log(gameData)
+            let storageData = localStorage.getItem('gameData')
+            if (storageData) gameData = JSON.parse(storageData)
 
             /////////////////////////////////////////////////////
 
-            let isFoxOnMap = true
+            const mapValues = [
+                ' ', 'F', 'B', '*', '1', '2', '3', '4', '5', '6', '7', '8', '9', 's', 'b', 'h', 'w', 'p'
+            ]
+            function getMapValue(current) {
+                let currentIndex = mapValues.indexOf(current)
+                if (currentIndex === -1) {
+                    console.warn('Нет такого значения:', current)
+                    return ' '
+                }
+
+                currentIndex++
+                if (currentIndex === mapValues.length) currentIndex = 0
+                return mapValues[currentIndex]
+            }
             
             const configBtn = document.createElement('div')
             configBtn.innerText = '☑'
@@ -115,7 +135,7 @@
             levelWidthRange.oninput = resizeLevel
             levelWidthRange.step = 1
             levelWidthRange.min = 3
-            levelWidthRange.max = 19
+            levelWidthRange.max = 13
             levelWidthRange.value = gameData.map[0].length
             levelWidthRange.style = ` position: absolute; top: 30px; left: 20px; cursor: pointer; `
             editPopup.append(levelWidthRange)
@@ -132,7 +152,7 @@
             levelHeightRange.oninput = resizeLevel
             levelHeightRange.step = 1
             levelHeightRange.min = 1
-            levelHeightRange.max = 9
+            levelHeightRange.max = 5
             levelHeightRange.value = gameData.map.length
             levelHeightRange.style = ` position: absolute; top: 30px; left: 160px; cursor: pointer; `
             editPopup.append(levelHeightRange)
@@ -179,67 +199,13 @@
                         lineDiv.append(ceilDiv)
                     })
                 })
-
-                if (previousHeight > height || previousWidth > width)  {
-                    isFoxOnMap = false
-                    gameData.map.forEach( y => {
-                        y.forEach( x => {
-                            if (x === 'f' || x === 'F') isFoxOnMap = true
-                        })
-                    })
-                }
             }
 
             function changeCeil(x, y, ceilDiv) {
-                switch(gameData.map[y][x]) {
-                    case ' ':
-                        if (isFoxOnMap) gameData.map[y][x] = '*'
-                        else {
-                            gameData.map[y][x] = 'F'
-                            isFoxOnMap = true
-                        }
-                    break
-
-                    case 'F':
-                    case 'f':
-                        gameData.map[y][x] = '*'
-                        isFoxOnMap = false
-                    break
-
-                    case '*':
-                        if (isFoxOnMap) gameData.map[y][x] = '1'
-                        else {
-                            gameData.map[y][x] = 'F'
-                            isFoxOnMap = true
-                        }
-                    break
-
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                        if (isFoxOnMap) gameData.map[y][x] = '' + ((+gameData.map[y][x]) + 1)
-                        else {
-                            gameData.map[y][x] = 'F'
-                            isFoxOnMap = true
-                        }
-                    break
-
-                    case '9':
-                        if (isFoxOnMap) gameData.map[y][x] = ' '
-                        else {
-                            gameData.map[y][x] = 'F'
-                            isFoxOnMap = true
-                        }
-                    break
-                }
-
-                ceilDiv.innerText = gameData.map[y][x]
-                ceilDiv.style.backgroundColor = (gameData.map[y][x] === ' ') ? 'lime' : 'yellow'
+                const value = getMapValue(gameData.map[y][x])
+                gameData.map[y][x] = value
+                ceilDiv.innerText = value
+                ceilDiv.style.backgroundColor = (value === ' ') ? 'lime' : 'yellow'
             }
 
             // magic
@@ -268,6 +234,275 @@
                 gameData.magicLevel = magic
             }
 
+            // commands
+            const command = {
+                start: 'ᐅ',
+                startMessage: '⮚',
+
+                up: '⭱',
+                down: '⭳',
+                left: '⭰',
+                right: '⭲',
+                
+                turnLeft: '↶',
+                forward: '🡡',
+                turnRight: '↷',
+
+                loop: '🗘',
+
+                use: '✭',
+                message: '✉',
+            }
+            const commandKeys = Object.keys(command)
+            const commandValues = Object.values(command)
+
+            const commandsLabel = document.createElement('label')
+            commandsLabel.innerText = 'Все команды:'
+            commandsLabel.style = ` position: absolute; top: 70px; right: 70px; font-size: 20px; color: black;`
+            editPopup.append(commandsLabel)
+
+            const commandsDiv = document.createElement('div')
+            commandsDiv.style = `position: absolute; top: 95px; right: 15px; min-height: 32px; min-width: 32px; max-width: 215px; border: 2px solid gray; border-radius: 6px;`
+            editPopup.append(commandsDiv)
+            for(let key in command) {
+                const commandDiv = document.createElement('div')
+                commandDiv.style = `display: inline-block; cursor: pointer; margin: 4px; width: 24px; height: 24px; text-align: center; line-height: 24px; font-size: 18px; border: 2px solid gray; border-radius: 6px;`
+                commandDiv.innerText = command[key]
+                commandDiv.style.backgroundColor = getCommandColor(key)
+                commandDiv.onclick = addCommandToStack
+                commandsDiv.append(commandDiv)
+            }
+
+            function getCommandColor( key ) {
+                switch(key) {
+                    case 'start':
+                    case 'startMessage': return 'lime'
+                    case 'left':
+                    case 'right':
+                    case 'up':
+                    case 'down': return 'lightblue'
+                    case 'forward':
+                    case 'turnLeft':
+                    case 'turnRight': return 'blue'
+                    case 'loop': return 'pink'
+                    case 'use':
+                    case 'message': return 'orange'
+                }
+            }
+
+            function addCommandToStack(event) {
+                const stack = stackRadio.checked ? availableStack : foxRadio.checked ? foxStack : bearStack
+
+                if(stackRadio.checked) {
+                    let isExist = false
+                    availableStack.querySelectorAll('div').forEach( div => {
+                        if (div.innerText === event.target.innerText) isExist = true
+                    })
+                    if (isExist) return
+                } else {
+                    if (event.target.innerText === command.loop) return
+
+                    if (stack.querySelectorAll('div').length === 0) {
+                        if  (event.target.innerText !== command.start
+                        && event.target.innerText !== command.startMessage)
+                        return
+                    } else {
+                        if  (event.target.innerText === command.start
+                        || event.target.innerText === command.startMessage)
+                        return
+                    }
+                }
+
+                const commandsDiv = document.createElement('div')
+                commandsDiv.style = `display: inline-block; cursor: pointer; margin: 4px; width: 24px; height: 24px; text-align: center; line-height: 24px; font-size: 18px; border: 2px solid gray; border-radius: 6px;`
+                commandsDiv.innerText = event.target.innerText
+                commandsDiv.style.backgroundColor = event.target.style.backgroundColor
+                commandsDiv.onclick = changeCommand
+                stack.append(commandsDiv)
+
+                if(stackRadio.checked) sortAvailableStack()
+                else{
+                    const commandKey = commandKeys[ commandValues.indexOf(event.target.innerText) ]
+
+                    if (foxRadio.checked) {
+                        if(gameData.fox.helpCommandsCount > 0) {
+                            gameData.fox.helpCommandsCount++
+                            commandsDiv.style.backgroundColor = 'gray'
+                        }
+                        gameData.fox.startCommands.push(commandKey)
+                    } else {
+                        if(gameData.bear.helpCommandsCount > 0) {
+                            gameData.bear.helpCommandsCount++
+                            commandsDiv.style.backgroundColor = 'gray'
+                        }
+                        gameData.bear.startCommands.push(commandKey)
+                    }
+                }
+            }
+
+            function changeCommand(event) {
+                if (stackRadio.checked && event.target.parentNode === availableStack) {
+                    event.target.remove()
+                    sortAvailableStack()
+                    return
+                }
+                
+                if (foxRadio.checked && event.target.parentNode === foxStack) {
+                    changeHeroStack( event )
+                    return
+                }
+                if (bearRadio.checked && event.target.parentNode === bearStack) {
+                    changeHeroStack( event )
+                    return
+                }
+            }
+
+            function changeHeroStack( event ) {
+                const commandsArr = foxRadio.checked ? Array.from(foxStack.children) : Array.from(bearStack.children)
+                const index = commandsArr.indexOf(event.target)
+
+                if (event.target.style.backgroundColor === 'gray') {
+                    while (commandsArr.length > index) {
+                        const div = commandsArr.pop()
+                        div.remove()
+                        if (foxRadio.checked) {
+                            gameData.fox.startCommands.pop()
+                            gameData.fox.helpCommandsCount--
+                        } else {
+                            gameData.bear.startCommands.pop()
+                            gameData.bear.helpCommandsCount--
+                        }
+                    }
+                } else {
+                    const rest = commandsArr.length - index
+                    const helpCommandsCount = (foxRadio.checked ? gameData.fox.helpCommandsCount : gameData.bear.helpCommandsCount)
+                    if (rest <= helpCommandsCount) return
+
+                    for(let i = index; i < commandsArr.length; i++) commandsArr[i].style.backgroundColor = 'gray'
+
+                    if (foxRadio.checked) {
+                        gameData.fox.helpCommandsCount = rest
+                    } else {
+                        gameData.bear.helpCommandsCount = rest
+                    }
+                }
+            }
+
+            function sortAvailableStack() {
+                const children = Array.from(availableStack.children)
+                children.sort((a, b) => commandValues.indexOf(a.innerText) - commandValues.indexOf(b.innerText))
+                availableStack.innerHTML = ''
+                gameData.commands = []
+                children.forEach(child => {
+                    const commandKey = commandKeys[ commandValues.indexOf(child.innerText) ]
+                    gameData.commands.push(commandKey)
+                    availableStack.appendChild(child)
+                })
+            }
+
+            const stackLabel = document.createElement('label')
+            stackLabel.innerText = 'Доступные'
+            stackLabel.style = ` position: absolute; top: 380px; left: 20px; font-size: 20px; color: black;`
+            editPopup.append(stackLabel)
+            const stackRadio = document.createElement('input')
+            stackRadio.type = "radio"
+            stackRadio.name = "stack"
+            stackRadio.checked = true
+            stackRadio.style = ` position: absolute; top: 380px; left: 130px; cursor: pointer; transform: scale(2);`
+            editPopup.append(stackRadio)
+            const availableStack = document.createElement('div')
+            availableStack.style = `position: absolute; top: 370px; left: 160px; height: 32px; min-width: 32px; border: 2px solid gray; border-radius: 6px;`
+            editPopup.append(availableStack)
+
+            fillAvailableStack()
+            function fillAvailableStack() {
+                gameData.commands.forEach( cmd => {
+                    const commandsDiv = document.createElement('div')
+                    commandsDiv.style = `display: inline-block; cursor: pointer; margin: 4px; width: 24px; height: 24px; text-align: center; line-height: 24px; font-size: 18px; border: 2px solid gray; border-radius: 6px;`
+                    commandsDiv.innerText = command[cmd]
+                    commandsDiv.style.backgroundColor = getCommandColor(cmd)
+                    commandsDiv.onclick = changeCommand
+                    availableStack.append(commandsDiv)
+                })
+            }
+
+            // heroes
+            const foxRadio = document.createElement('input')
+            foxRadio.type = "radio"
+            foxRadio.name = "stack"
+            foxRadio.checked = false
+            foxRadio.style = ` position: absolute; top: 300px; left: 130px; cursor: pointer; transform: scale(2);`
+            editPopup.append(foxRadio)
+            const foxLabel = document.createElement('label')
+            foxLabel.innerText = 'Коди'
+            foxLabel.style = ` position: absolute; top: 300px; left: 50px; font-size: 20px; color: black;`
+            editPopup.append(foxLabel)
+            const foxCheckbox = document.createElement('input')
+            foxCheckbox.type = "checkbox"
+            foxCheckbox.checked = gameData.fox.isActive
+            foxCheckbox.onchange = changeHeroes
+            foxCheckbox.style = ` position: absolute; top: 300px; left: 20px; cursor: pointer; transform: scale(2);`
+            editPopup.append(foxCheckbox)
+            const foxStack = document.createElement('div')
+            foxStack.style = `position: absolute; top: 290px; left: 160px; height: 32px; min-width: 32px; border: 2px solid gray; border-radius: 6px;`
+            editPopup.append(foxStack)
+
+            fillFoxStack()
+            function fillFoxStack() {
+                const grayIndex = gameData.fox.startCommands.length - gameData.fox.helpCommandsCount
+                gameData.fox.startCommands.forEach( (cmd, i) => {
+                    const commandsDiv = document.createElement('div')
+                    commandsDiv.style = `display: inline-block; cursor: pointer; margin: 4px; width: 24px; height: 24px; text-align: center; line-height: 24px; font-size: 18px; border: 2px solid gray; border-radius: 6px;`
+                    commandsDiv.innerText = command[cmd]
+                    commandsDiv.style.backgroundColor = i < grayIndex ? getCommandColor(cmd) : 'gray'
+                    commandsDiv.onclick = changeCommand
+                    foxStack.append(commandsDiv)
+                })
+            }
+
+            const bearRadio = document.createElement('input')
+            bearRadio.type = "radio"
+            bearRadio.name = "stack"
+            bearRadio.checked = false
+            bearRadio.style = ` position: absolute; top: 340px; left: 130px; cursor: pointer; transform: scale(2);`
+            editPopup.append(bearRadio)
+            const bearLabel = document.createElement('label')
+            bearLabel.innerText = 'Проги'
+            bearLabel.style = ` position: absolute; top: 340px; left: 50px; font-size: 20px; color: black;`
+            editPopup.append(bearLabel)
+            const bearCheckbox = document.createElement('input')
+            bearCheckbox.type = "checkbox"
+            bearCheckbox.checked = gameData.bear.isActive
+            bearCheckbox.onchange = changeHeroes
+            bearCheckbox.style = ` position: absolute; top: 340px; left: 20px; cursor: pointer; transform: scale(2);`
+            editPopup.append(bearCheckbox)
+            const bearStack = document.createElement('div')
+            bearStack.style = `position: absolute; top: 330px; left: 160px; height: 32px; min-width: 32px; border: 2px solid gray; border-radius: 6px;`
+            editPopup.append(bearStack)
+
+            fillBearStack()
+            function fillBearStack() {
+                const grayIndex = gameData.bear.startCommands.length - gameData.bear.helpCommandsCount
+                gameData.bear.startCommands.forEach( (cmd, i) => {
+                    const commandsDiv = document.createElement('div')
+                    commandsDiv.style = `display: inline-block; cursor: pointer; margin: 4px; width: 24px; height: 24px; text-align: center; line-height: 24px; font-size: 18px; border: 2px solid gray; border-radius: 6px;`
+                    commandsDiv.innerText = command[cmd]
+                    commandsDiv.style.backgroundColor = i < grayIndex ? getCommandColor(cmd) : 'gray'
+                    commandsDiv.onclick = changeCommand
+                    bearStack.append(commandsDiv)
+                })
+            }
+
+            function changeHeroes() {
+                gameData.fox.isActive = foxCheckbox.checked
+                gameData.bear.isActive = bearCheckbox.checked
+
+                if (!gameData.fox.isActive && !gameData.bear.isActive) {
+                    foxCheckbox.checked = true
+                    gameData.fox.isActive = foxCheckbox.checked
+                }
+            }
+
             // apply button
             const applyButton = document.createElement('div')
             applyButton.innerText = "ПРИМЕНИТЬ"
@@ -291,9 +526,18 @@
             editPopup.append(applyButton)
 
             function applyGameConfig() {
-                if (!isFoxOnMap) return alert('Нет клетки с Лисом!')
+                let isFoxOnMap = false
+                let isBearOnMap = false
+                gameData.map.forEach( y => {
+                    y.forEach( x => {
+                        if (x === 'F') isFoxOnMap = true
+                        if (x === 'B') isBearOnMap = true
+                    })
+                })
+                if (!isFoxOnMap && foxCheckbox.checked) return alert('Нет клетки [F] с Коди!')
+                if (!isBearOnMap && bearCheckbox.checked) return alert('Нет клетки [B] с Проги!')
 
-                localStorage.setItem('gameDataFox', JSON.stringify(gameData))
+                localStorage.setItem('gameData', JSON.stringify(gameData))
                 location.reload()
             }
 
@@ -320,7 +564,7 @@
             editPopup.append(resetButton)
 
             function resetGameConfig() {
-                localStorage.removeItem('gameDataFox')
+                localStorage.removeItem('gameData')
                 location.reload()
             }
             

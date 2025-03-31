@@ -11,9 +11,11 @@ export const sprites = {
     tile_bg_top: 'tile_bg_top.png',
     tile_bg_bottom: 'tile_bg_bottom.png',
 
-    ceil: 'ceil_100.png',
+    ceil: 'ceil.png',
+    hole: 'hole.png',
 
     fox: 'fox_all.json',
+    bear: 'bear.json',
     star_blue: 'star_blue.png',
     star_purple: 'star_purple.png',
     star_yellow: 'star_yellow.png',
@@ -30,6 +32,8 @@ export const sprites = {
     target_8: 'target_8.png',
     target_9: 'target_9.png',
 
+    magic_items: 'magic_items.json',
+
     flower: 'flower.png',
     bf_yellow: 'butterfly_yellow.json',
     bf_white: 'butterfly_white.json',
@@ -40,12 +44,18 @@ export const sprites = {
     button_arrow: 'wood_arrow.png',
     blue_arrow: 'blue_arrow.png',
     red_arrow: 'red_arrow.png',
+    button_use: 'wood_use.png',
+    blue_use: 'blue_use.png',
+    red_use: 'red_use.png',
+
+    buttons: 'buttons.json',
+    commands: 'commands.json',
 }
 const spritesNumber = Object.keys(sprites).length
 for (let sprite in sprites) sprites[sprite] = paths.sprites + sprites[sprite]
 
 export const fonts = {
-    normal: 'Onest-Regular.ttf',
+    normal: 'Rubik-Medium.ttf',
 }
 for (let font in fonts) fonts[font] = paths.fonts + fonts[font]
 

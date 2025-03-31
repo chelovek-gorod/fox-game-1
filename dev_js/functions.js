@@ -1,3 +1,9 @@
+export function setCursorPointer(target) {
+    target.eventMode = 'static'
+    target.on('pointerover', () => document.body.style.cursor = 'pointer')
+    target.on('pointerout', () => document.body.style.cursor = 'auto')
+}
+
 const _2PI = Math.PI * 2
 
 export function getDistance(sprite, target) {

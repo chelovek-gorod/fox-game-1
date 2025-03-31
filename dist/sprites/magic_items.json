@@ -1,0 +1,52 @@
+{"frames": {
+
+"book":
+{
+	"frame": {"x":118,"y":99,"w":86,"h":103},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":25,"y":9,"w":86,"h":103},
+	"sourceSize": {"w":120,"h":120}
+},
+"broom":
+{
+	"frame": {"x":2,"y":2,"w":96,"h":120},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":16,"y":0,"w":96,"h":120},
+	"sourceSize": {"w":120,"h":120}
+},
+"hat":
+{
+	"frame": {"x":101,"y":2,"w":100,"h":94},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":14,"y":13,"w":100,"h":94},
+	"sourceSize": {"w":120,"h":120}
+},
+"potion":
+{
+	"frame": {"x":65,"y":125,"w":50,"h":92},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":35,"y":14,"w":50,"h":92},
+	"sourceSize": {"w":120,"h":120}
+},
+"wand":
+{
+	"frame": {"x":2,"y":125,"w":60,"h":97},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":37,"y":12,"w":60,"h":97},
+	"sourceSize": {"w":120,"h":120}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.1",
+	"image": "magic_items.png",
+	"format": "RGBA8888",
+	"size": {"w":206,"h":224},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:ae678fdddd8ae78fed88746261d263ae:8d79c11c63930b3edd869c876f8a1967:6b424434332f6f959e1069e4beacde0b$"
+}
+}

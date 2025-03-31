@@ -19,5 +19,11 @@ export function initFontStyles() {
             dropShadowAngle: 0,
             dropShadowDistance: 0,
         }),
+        
+        loop: new TextStyle({
+            fontFamily: fonts.normal,
+            fontSize: 32,
+            fill: '#ffffff',
+        }),
     }
 }

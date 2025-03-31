@@ -3,6 +3,7 @@ import { NUMBER, _2PI } from "../constants";
 import { getAppScreen, tickerAdd, tickerRemove } from "../engine/application";
 import { sprites } from "../engine/loader"
 import TargetButterfly from "./TargetButterfly"
+import { EventHub, events } from "../engine/events";
 
 export default class TargetNumber extends Sprite {
     constructor(x, y, number, sky, bfColorsList) {
@@ -12,14 +13,33 @@ export default class TargetNumber extends Sprite {
         this.number = number
         this.sky = sky
 
+        this.startData = {
+            x, y, parent: null
+        }
+
         this.bfColorsList = bfColorsList
+
+        EventHub.on( events.restart, this.restart, this )
+    }
+
+    restart() {
+        if (this.startData.parent === null) return
+
+        tickerRemove(this)
+        this.alpha = 1
+        this.scale.set(1)
+        this.position.set(this.startData.x, this.startData.y)
+        this.startData.parent.addChild(this)
+
+        this.startData.parent = null
     }
 
     collected() {
+        this.startData.parent = this.parent
         this.sky.addChild(this)
         tickerAdd(this)
 
-        const bf_count = 2 * this.number + 1
+        const bf_count = this.number
         const screen = getAppScreen()
         const startAngle = _2PI * Math.random()
         const stepAngle = _2PI / bf_count
@@ -42,7 +62,7 @@ export default class TargetNumber extends Sprite {
         
         if (this.alpha <= 0) {
             tickerRemove(this)
-            return this.destroy()
+            this.parent.removeChild(this)
         }
     }
 }

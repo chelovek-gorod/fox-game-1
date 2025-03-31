@@ -1,44 +1,46 @@
 import { Container, Sprite } from "pixi.js";
-import { DIRECTION, BUTTON } from "../constants";
+import { ACTION, BUTTON } from "../constants";
 import { tickerAdd, tickerRemove } from "../engine/application";
 import { EventHub, events, getButtonClick, resetAllButtons } from "../engine/events";
 import { sprites } from "../engine/loader";
+import { setCursorPointer } from "../functions";
 
 let isButtonUsed = false
 let isButtonActive = false
 
 export default class Button extends Container {
-    constructor(cx, cy, direction) {
+    constructor(cx, cy, action) {
         super()
 
+        setCursorPointer(this)
+        this.on('pointerdown', this.getClick, this)
+
         this.position.set(cx, cy)
-        this.direction = direction
+        this.action = action
 
         this.base = new Sprite( sprites.button)
-        this.base.eventMode = 'static'
-        this.base.on('pointerdown', this.getClick.bind(this) )
         this.base.anchor.set(0.5)
         this.addChild(this.base)
 
-        const arrowAngle = direction === DIRECTION.left ? -90
-                         : direction === DIRECTION.right ? 90
-                         : direction === DIRECTION.down ? 180 : 0
+        const imageAngle = action === ACTION.left ? -90
+                         : action === ACTION.right ? 90
+                         : action === ACTION.down ? 180 : 0
 
-        this.arrow = new Sprite( sprites.button_arrow )
-        this.arrow.anchor.set(0.5)
-        this.arrow.angle = arrowAngle
-        this.addChild(this.arrow)
+        this.image = new Sprite( action === ACTION.use ? sprites.button_use : sprites.button_arrow )
+        this.image.anchor.set(0.5)
+        this.image.angle = imageAngle
+        this.addChild(this.image)
 
-        this.red = new Sprite( sprites.red_arrow )
+        this.red = new Sprite( action === ACTION.use ? sprites.red_use : sprites.red_arrow )
         this.red.alpha = 0
         this.red.anchor.set(0.5)
-        this.red.angle = arrowAngle
+        this.red.angle = imageAngle
         this.addChild(this.red)
 
-        this.light = new Sprite( sprites.blue_arrow )
+        this.light = new Sprite( action === ACTION.use ? sprites.blue_use : sprites.blue_arrow )
         this.light.anchor.set(0.5)
         this.light.scale.set(BUTTON.lightScale)
-        this.light.angle = arrowAngle
+        this.light.angle = imageAngle
         this.addChild(this.light)
 
         this.isTrueClick = false
@@ -47,17 +49,17 @@ export default class Button extends Container {
         EventHub.on( events.resetAllButtons, this.resetButton, this)
     }
 
-    getClick() {
+    getClick() { console.log('click')
         if (isButtonUsed || isButtonActive) return
 
         isButtonActive = true
-        getButtonClick( this.direction )
+        getButtonClick( this.action )
     }
 
     useButton( data ) {
         isButtonUsed = data.isOk
 
-        if (data.direction === this.direction) {
+        if (data.action === this.action) {
             this.isTrueClick = data.isOk
             if (!data.isOk) {
                 this.red.alpha = 1

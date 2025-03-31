@@ -1,10 +1,12 @@
 import { Application } from 'pixi.js'
-import { screenResize } from './events'
+import { changeFocus, screenResize } from './events'
 import { preloadFonts } from './loader'
 
 let app = null
 let appContainer = null
 let startCallback = null
+
+let appPointer = null
 
 const appSettings = {
     background: 0xffffff,
@@ -32,6 +34,9 @@ function appReady() {
 
     resize()
 
+    app.stage.eventMode = 'static'
+    app.stage.on('pointermove', (event) => appPointer = event.data)
+
     preloadFonts( startCallback )
 }
 
@@ -53,6 +58,10 @@ export function getAppScreen() {
     return appScreen
 }
 
+export function getAppPointer(target) {
+    return appPointer.getLocalPosition(target)
+}
+
 export function sceneAdd(...elements) {
     elements.forEach( element => app.stage.addChild( element ) )
 }
@@ -69,36 +78,23 @@ let orientation = window.matchMedia("(orientation: portrait)");
 orientation.addEventListener("change", () => setTimeout(resize, 0))
 window.addEventListener('resize', () => setTimeout(resize, 0))
 
-let isOnFocus = true
-window.addEventListener('focus', () => focusOnChange(true))
-window.addEventListener('blur', () => focusOnChange(false))
+window.addEventListener('focus', () => tickerStateChange(true))
+window.addEventListener('blur', () => tickerStateChange(false))
 if ('hidden' in document) document.addEventListener('visibilitychange', visibilityOnChange)
 function visibilityOnChange( ) {
-    focusOnChange( document.visibilityState === 'visible' )
-}
-function focusOnChange( isOn ) {
-    isOnFocus = isOn
-
-    if (isOnFocus) startTicker()
-    else stopTicker()
+    const isHidden = document.hidden || document.visibilityState !== 'visible'
+    tickerStateChange( isHidden )
 }
 
-export function checkFocus() {
-    return isOnFocus
-}
+function tickerStateChange( isOn ) {
+    if (app === null || !('ticker' in app)) return
 
-let isTick = true
-
-export function stopTicker() {
-    isTick = false
-}
-
-export function startTicker() {
-    isTick = true
+    if (isOn) app.ticker.start()
+    else app.ticker.stop()
+    changeFocus(isOn)
 }
 
 function tick(time) {
-    if (!isTick || document.visibilityState !== 'visible') return
     // if (delta = 1) -> FPS = 60 (16.66ms per frame)
     tickerArr.forEach( element => element.tick(time) )
     // time.elapsedMS - in milliseconds

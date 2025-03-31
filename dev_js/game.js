@@ -1,16 +1,71 @@
 import { Container } from "pixi.js"
-import { EventHub, events } from './engine/events'
+import { EventHub, events, setBearCommands, setFoxCommands } from './engine/events'
 import { getAppScreen, sceneAdd } from "./engine/application"
-import { CEIL_SIZE, CEIL_HALF_SIZE, DIRECTION, BUTTON }  from "./constants"
+import { CEIL_SIZE, CEIL_HALF_SIZE, ACTION, BUTTON, CP, COMMANDS }  from "./constants"
 import Background from "./game/Background"
 import Ceil from './game/Ceil'
-import Fox from './game/Fox'
+import Hero from './game/Hero'
 import Button from './game/Button'
 import Flower from "./game/Flower"
 import Butterfly from "./game/Butterfly"
 import TargetNumber from "./game/TargetNumber"
+import TargetItem from "./game/TargetItem"
+import ControlPanel from "./commandsStack/ControlPanel"
 
 let game = null
+
+export function gameWin() {
+    if (game.fox) game.fox.win()
+    if (game.bear) game.bear.win()
+}
+
+export function checkUseMessageFrom(hero) {
+    // from 'fox' to 'bear'
+    if (hero === 'fox') {
+        if('bearStack' in game.UIContainer
+        && game.UIContainer.bearStack.commandsList[0] === COMMANDS.startMessage
+        && game.UIContainer.bearStack.commandsList.length > 1) {
+            setBearCommands(game.UIContainer.bearStack.commandsList)
+            return true
+        }
+    }
+    // from 'bear' to 'fox'
+    else {
+        if('foxStack' in game.UIContainer
+        && game.UIContainer.foxStack.commandsList[0] === COMMANDS.startMessage
+        && game.UIContainer.foxStack.commandsList.length > 1) {
+            setFoxCommands(game.UIContainer.foxStack.commandsList)
+            return true
+        }
+    }
+
+    return false
+}
+
+export function getTargetsCount() {
+    return (game.numbers.length + game.items.length)
+}
+
+export function collectTargetObject( target ) {
+    if('number' in target) {
+        if (target.number !== game.numbers[game.numbers.length - 1])  return false
+
+        target.collected()
+        game.numbers.pop()
+        return true
+    }
+
+    if('item' in target) {
+        const itemIndex = game.items.indexOf(target.item)
+        if (itemIndex === -1) return console.error(`${target.item} in game.items is not found! ${game.items}`)
+
+        target.collected()
+        game.items.splice(itemIndex, 1)
+        return true
+    }
+
+    return false
+}
 
 const flowerListCounter = [false, true, false]
 const flowerCountSize = flowerListCounter.length
@@ -25,8 +80,10 @@ function checkFlowerInPoint() {
 
 const bfColorsList = ['blue', 'purple', 'white', 'yellow']
 
+EventHub.on(events.restart, () => game.restart() )
+
 export default function startGame(gameData) {
-    if (game) game.reset(gameData)
+    if (game) game.restart()
     else game = new Game(gameData)
 }
 
@@ -35,7 +92,13 @@ class Game {
         this.bg = new Background()
         sceneAdd(this.bg)
 
+        this.isCommandsAsButtons = gameData.commands.length === 0
+
         this.fox = null
+        this.Bear = null
+
+        this.numbers = []
+        this.items = []
 
         this.worldContainer = new Container()
         sceneAdd(this.worldContainer)
@@ -74,8 +137,12 @@ class Game {
             )
         }
 
-        this.UIContainer = new Container()
-        this.fillUI(gameData)
+        if (this.isCommandsAsButtons) {
+            this.UIContainer = new Container()
+            this.fillUI()
+        } else {
+            this.UIContainer = new ControlPanel(gameData.fox, gameData.bear, gameData.commands)
+        }
         sceneAdd(this.UIContainer)
 
         EventHub.on( events.screenResize, this.screenResize, this )
@@ -104,32 +171,38 @@ class Game {
         const halfCeilScaled = CEIL_HALF_SIZE * scale
         this.worldContainer.position.set(offsetX + halfCeilScaled, quarterScreenHeight + halfCeilScaled)
 
-        const buttonsScale = quarterScreenHeight > BUTTON.size * 2 ? 1 : quarterScreenHeight / (BUTTON.size * 2)
-        const offsetButtonsX = (screenData.width - BUTTON.size * 3 * buttonsScale) * 0.5
-        this.UIContainer.scale.set(buttonsScale)
-        this.UIContainer.position.set(offsetButtonsX, quarterScreenHeight + halfScreenHeight - halfCeilScaled * 0.5)
+        if (this.isCommandsAsButtons) {
+            const buttonsScale = quarterScreenHeight > BUTTON.size * 2 ? 1 : quarterScreenHeight / (BUTTON.size * 2)
+            const offsetButtonsX = (screenData.width - BUTTON.size * 5 * buttonsScale) * 0.5
+            this.UIContainer.scale.set(buttonsScale)
+            this.UIContainer.position.set(offsetButtonsX, quarterScreenHeight + halfScreenHeight - halfCeilScaled * 0.5)
+        } else {
+            let CPScale = quarterScreenHeight > CP.height ? 1 : quarterScreenHeight / (CP.height + CP.bottomOffset + CP.iconSize * 0.5)
+            const CPWidth = (CP.width + CP.bottomOffset * 2)
+            if ((CPScale * CPWidth) > screenData.width) CPScale = screenData.width / CPWidth
+            this.UIContainer.scale.set(CPScale)
+            const UIx = (screenData.width - (CPScale * CP.width)) * 0.5
+            const UIy = screenData.height - (CP.height + CP.bottomOffset + CP.iconSize) * CPScale
+            this.UIContainer.position.set( UIx, UIy )
+        }
     }
 
-    fillUI(gameData) {
-        if (gameData.commands.length === 0) {
-            this.controlWidth = BUTTON.size * 3
-            this.controlHeight = BUTTON.size * 2
+    fillUI() {
+        this.controlWidth = BUTTON.size * 3
+        this.controlHeight = BUTTON.size * 2
 
-            this.btnUp = new Button(BUTTON.size * 1.5, BUTTON.size * 0.5, DIRECTION.up)
-            this.btnDown = new Button(BUTTON.size * 1.5, BUTTON.size * 1.5, DIRECTION.down)
-            this.btnLeft = new Button(BUTTON.size * 0.5, BUTTON.size * 1, DIRECTION.left)
-            this.btnRight = new Button(BUTTON.size * 2.5, BUTTON.size * 1, DIRECTION.right)
-            this.UIContainer.addChild(this.btnUp, this.btnDown, this.btnLeft, this.btnRight)
-        }
-        else alert('Game.fillControl(gameData) - Не заполнено поведение на различные команды')
+        this.btnUp = new Button(BUTTON.size * 1.5, BUTTON.size * 0.5, ACTION.up)
+        this.btnDown = new Button(BUTTON.size * 1.5, BUTTON.size * 1.5, ACTION.down)
+        this.btnLeft = new Button(BUTTON.size * 0.5, BUTTON.size * 1, ACTION.left)
+        this.btnRight = new Button(BUTTON.size * 2.5, BUTTON.size * 1, ACTION.right)
+        this.btnUse = new Button(BUTTON.size * 4.5, BUTTON.size * 1, ACTION.use)
+        this.UIContainer.addChild(this.btnUp, this.btnDown, this.btnLeft, this.btnRight, this.btnUse)
     }
 
     fillWorld(gameData) {
         
         this.height = gameData.map.length * CEIL_SIZE
         this.width = gameData.map[0].length * CEIL_SIZE
-
-        const numbers = []
 
         for(var stepY = 0;  stepY < gameData.map.length; stepY++) {
 
@@ -152,15 +225,19 @@ class Game {
 
                 switch(ceilChar) {
                     case 'F' :
-                    case 'f' :
-                        this.fox = new Fox(
+                    case 'B' :
+                        const hero = new Hero(
+                            ceilChar === 'F', // isFox
                             x, y,
                             this.ceilContainer.children,
                             this.targetContainer.children,
                             gameData.magicLevel,
-                            this.starContainer
+                            this.starContainer,
+                            this.isCommandsAsButtons,
                             )
-                        this.unitContainer.addChild(this.fox)
+                        this.unitContainer.addChild(hero)
+                        if (ceilChar === 'F') this.fox = hero
+                        else this.bear = hero
                     break
 
                     case '1':
@@ -172,16 +249,40 @@ class Game {
                     case '7':
                     case '8':
                     case '9':
-                        numbers.push(+ceilChar)
+                        this.numbers.push(+ceilChar)
                         this.targetContainer.addChild(
                             new TargetNumber( x, y, +ceilChar, this.skyContainer, bfColorsList )
+                        )
+                    break
+
+                    case 's': // 'broom'
+                    case 'b': // 'book'
+                    case 'h': // 'hat'
+                    case 'w': // 'wand'
+                    case 'p': // 'potion'
+                        let item = 'broom'
+                        if (ceilChar === 'b') item = 'book'
+                        else if (ceilChar === 'h') item = 'hat'
+                        else if (ceilChar === 'w') item = 'wand'
+                        else if (ceilChar === 'p') item = 'potion'
+                        this.items.push(item)
+                        this.targetContainer.addChild(
+                            new TargetItem( x, y, item, this.starContainer, this.skyContainer, bfColorsList )
                         )
                     break
                 }
             }
         }
 
-        if (this.fox && numbers.length) this.fox.setTargetNumbers(numbers, this.targetContainer)
+        this.numbers.sort((a, b) => b - a)
+        
+        this.startNumbers = [...this.numbers]
+        this.startItems = [...this.items]
+    }
+
+    restart() {
+        this.numbers = [...this.startNumbers]
+        this.items = [...this.startItems]
     }
 }
 
