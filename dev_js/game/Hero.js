@@ -92,8 +92,7 @@ export default class Hero extends AnimatedSprite {
     }
 
     getActionsList( actions ) {
-        this.actionsList = [...actions].reverse()
-        this.actionsList.pop() // remove "START" or "START MESSAGE" command
+        this.actionsList = [...actions]
         this.getAction( this.actionsList.pop() ) // RUN first command
     }
 
@@ -107,7 +106,7 @@ export default class Hero extends AnimatedSprite {
         this.errorCommand(null)
     }
 
-    getAction( action ) { console.log('getAction', action)
+    getAction( action ) {
         // if all numbers and items collected
         if (getTargetsCount() === 0) return
 
@@ -154,7 +153,6 @@ export default class Hero extends AnimatedSprite {
             if (this.isCommandsAsButtons) {
                 resetAllButtons()
                 this.idle()
-                console.log('loop of showErrorAnimation')
             }
             else {
                 restart()
@@ -202,7 +200,7 @@ export default class Hero extends AnimatedSprite {
         return this.idle()
     }
 
-    idle() { console.log('idle')
+    idle() {
         this.onLoop = false
         this.isLastActionForward = false
 
@@ -300,7 +298,6 @@ export default class Hero extends AnimatedSprite {
 
     endMove() {
         tickerRemove( this )
-        console.log('end move')
 
         this.position.set(this.target.x, this.target.y)
         this.target = null

@@ -20,21 +20,23 @@ export function gameWin() {
 }
 
 export function checkUseMessageFrom(hero) {
+    let foxCommands = null
+    let bearCommands = null
+
     // from 'fox' to 'bear'
-    if (hero === 'fox') {
-        if('bearStack' in game.UIContainer
-        && game.UIContainer.bearStack.commandsList[0] === COMMANDS.startMessage
-        && game.UIContainer.bearStack.commandsList.length > 1) {
-            setBearCommands(game.UIContainer.bearStack.commandsList)
+    if (hero === 'fox' && 'bearStack' in game.UIContainer) {
+        bearCommands = game.UIContainer.bearStack.getCommandsList(true)
+        if (bearCommands) {
+            setBearCommands(bearCommands)
             return true
         }
     }
+
     // from 'bear' to 'fox'
-    else {
-        if('foxStack' in game.UIContainer
-        && game.UIContainer.foxStack.commandsList[0] === COMMANDS.startMessage
-        && game.UIContainer.foxStack.commandsList.length > 1) {
-            setFoxCommands(game.UIContainer.foxStack.commandsList)
+    if(hero === 'bear' && 'foxStack' in game.UIContainer) {
+        foxCommands = game.UIContainer.foxStack.getCommandsList(true)
+        if (foxCommands) {
+            setFoxCommands(foxCommands)
             return true
         }
     }
@@ -125,7 +127,9 @@ class Game {
 
         this.fillWorld(gameData)
 
-        for(var bf = 0; bf < 4; bf++) {
+        let bfCount = this.flowersContainer.children.length || 1
+        if (bfCount > 4) bfCount = 4
+        for(var bf = 0; bf < bfCount; bf++) {
             this.skyContainer.addChild(
                 new Butterfly(
                     this.width,

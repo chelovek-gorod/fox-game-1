@@ -49,7 +49,7 @@ export const sprites = {
     red_use: 'red_use.png',
 
     buttons: 'buttons.json',
-    commands: 'commands.json',
+    commands: 'commands2.json',
 }
 const spritesNumber = Object.keys(sprites).length
 for (let sprite in sprites) sprites[sprite] = paths.sprites + sprites[sprite]

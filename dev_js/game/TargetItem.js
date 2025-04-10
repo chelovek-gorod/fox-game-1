@@ -55,8 +55,6 @@ export default class TargetItem extends Container {
         this.startData.parent.addChild(this)
         this.onOffStars(true)
 
-        console.log(this.image.scale.x, this.image.scale.y)
-
         tickerAdd(this)
 
         this.startData.parent = null

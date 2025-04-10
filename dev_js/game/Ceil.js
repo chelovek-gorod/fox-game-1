@@ -14,9 +14,8 @@ export default class Ceil extends Container {
         this.item = null
     }
 
-    addItem(item) { console.log(this.x, this.y)
+    addItem(item) {
         item.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
         this.addChild(item)
-        console.log(item.x, item.y)
     }
 }

@@ -162,5 +162,11 @@ export const CMD_BLOCK = {
     action: 100, // 115
     loopStart: 20, // 35
     loopTop: 5,
-    loopEnd: 100, // 115
+    loopEnd: 100,
+    loopEmptyOffset: 15,
+    loop: 20 + 15 + 100,
+
+    scrollStep: 60,
+    scrollSize: 0,
 }
+CMD_BLOCK.scrollSize = Math.floor(CP.stackWidth * 0.5) - CMD_BLOCK.offsetX

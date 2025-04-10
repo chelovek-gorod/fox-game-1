@@ -28,8 +28,8 @@ export default class ControlPanel extends Container {
         this.board.fill(CP.boardBGColor)
         this.board.stroke({width: CP.boardBorderWidth, color: CP.boardBorderColor})
 
-        if (fox.isActive) this.foxStack = new Stack(fox.helpCommandsCount, fox.startCommands)
-        if (bear.isActive) this.bearStack = new Stack(bear.helpCommandsCount, bear.startCommands)
+        if (fox.isActive) this.foxStack = new Stack(fox.helpCommandsCount, fox.startCommands, this)
+        if (bear.isActive) this.bearStack = new Stack(bear.helpCommandsCount, bear.startCommands, this)
 
         if (fox.isActive && bear.isActive) {
             this.foxIcon = new Sprite(sprites.buttons.textures.fox_icon)
@@ -76,7 +76,7 @@ export default class ControlPanel extends Container {
         // commands
         let lastCommandX = CP.startCommandX
         commands.forEach( cmd => {
-            const command = new Command(cmd, lastCommandX, CP.startCommandY, true)
+            const command = new Command(cmd, lastCommandX, CP.startCommandY, this, true)
             this.addChild(command)
 
             lastCommandX += (cmd === COMMANDS.start || cmd === COMMANDS.startMessage)
@@ -117,24 +117,46 @@ export default class ControlPanel extends Container {
     startCommands() {
         if (this.isOnPlay) return
 
-        if ('foxStack' in this
-        && this.foxStack.commandsList.length > 1
-        && this.foxStack.commandsList[0] === COMMANDS.start) {
-            setFoxCommands( this.foxStack.commandsList )
-            this.isOnPlay = true
-        }
+        let foxCommands = null
+        let bearCommands = null
 
-        if ('bearStack' in this
-        && this.bearStack.commandsList.length > 1
-        && this.bearStack.commandsList[0] === COMMANDS.start) {
-            setBearCommands( this.bearStack.commandsList )
+        if ('foxStack' in this) foxCommands =  this.foxStack.getCommandsList()
+        if ('bearStack' in this) bearCommands = this.bearStack.getCommandsList()
+
+        if (foxCommands) {
             this.isOnPlay = true
+            setFoxCommands( foxCommands )
+        }
+        if (bearCommands) {
+            this.isOnPlay = true
+            setBearCommands( bearCommands )
         }
 
         if (this.isOnPlay) {
             this.startButton.texture = sprites.buttons.textures.start_button_off
             this.stopButton.texture = sprites.buttons.textures.stop_button
         }
+    }
+
+    commandReplaced(command) {
+        if (this.isFoxActive) return this.foxStack.commandReplaced(command)
+        else return this.bearStack.commandReplaced(command)
+    }
+    clearStack() {
+        if (this.isFoxActive) return this.foxStack.clearStack()
+        else return this.bearStack.clearStack()
+    }
+    sortStackCommands() {
+        if (this.isFoxActive) return this.foxStack.sortCommands()
+        else return this.bearStack.sortCommands()
+    }
+    addCommandToStack(command) {
+        if (this.isFoxActive) return this.foxStack.addCommand(command)
+        else return this.bearStack.addCommand(command)
+    }
+    startCommandRemoved() {
+        if (this.isFoxActive) return this.foxStack.startCommandRemoved()
+        else return this.bearStack.startCommandRemoved()
     }
 
     // STOP

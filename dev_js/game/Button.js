@@ -49,7 +49,7 @@ export default class Button extends Container {
         EventHub.on( events.resetAllButtons, this.resetButton, this)
     }
 
-    getClick() { console.log('click')
+    getClick() {
         if (isButtonUsed || isButtonActive) return
 
         isButtonActive = true
