@@ -518,7 +518,7 @@
                 color: white;
                 background-color: blue;
                 bottom: 20px;
-                right: 120px;
+                right: 60px;
                 border-radius: 16px;
                 box-shadow: black 0px 6px 12px 4px;
                 cursor: pointer;
@@ -538,6 +538,7 @@
                 if (!isBearOnMap && bearCheckbox.checked) return alert('Нет клетки [B] с Проги!')
 
                 localStorage.setItem('gameData', JSON.stringify(gameData))
+
                 location.reload()
             }
 
@@ -556,7 +557,7 @@
                 color: black;
                 background-color: white;
                 bottom: 20px;
-                left: 120px;
+                left: 60px;
                 border-radius: 16px;
                 box-shadow: black 0px 6px 12px 4px;
                 cursor: pointer;
@@ -565,6 +566,125 @@
 
             function resetGameConfig() {
                 localStorage.removeItem('gameData')
+                location.reload()
+            }
+
+            // copy json button
+            const copyButton = document.createElement('div')
+            copyButton.innerText = "💾"
+            copyButton.onclick = copyGameConfig
+            copyButton.style = `
+                position: absolute;
+                width: 40px;
+                height: 40px;
+                line-height: 40px;
+                font-size: 26px;
+                text-align: center;
+                color: black;
+                background-color: white;
+                bottom: 20px;
+                right: 345px;
+                border-radius: 16px;
+                box-shadow: black 0px 6px 12px 4px;
+                cursor: pointer;
+            `
+            editPopup.append(copyButton)
+
+            function copyGameConfig() {
+                if (navigator.clipboard) navigator.clipboard.writeText( JSON.stringify(gameData) )
+                else alert ('Ваш браузер не поддерживает копирование данных в буфер обмена')
+            }
+
+            // past json button
+            const pastButton = document.createElement('div')
+            pastButton.innerText = "📎"
+            pastButton.onclick = pastGameConfig
+            pastButton.style = `
+                position: absolute;
+                width: 40px;
+                height: 40px;
+                line-height: 40px;
+                font-size: 26px;
+                text-align: center;
+                color: black;
+                background-color: white;
+                bottom: 20px;
+                left: 345px;
+                border-radius: 16px;
+                box-shadow: black 0px 6px 12px 4px;
+                cursor: pointer;
+            `
+            editPopup.append(pastButton)
+
+            function pastGameConfig() {
+                let userData = prompt('Вставьте код уровня')
+                let isValid = true
+                let errorType = ''
+                try {
+                    userData = JSON.parse(userData)
+                    console.log(userData)
+
+                    if (!userData.map
+                    || !Array.isArray(userData.map)
+                    || !Array.isArray(userData.map[0]) ) {
+                        isValid = false
+                        errorType +=' map'
+                    }
+
+                    if (!userData.commands || !Array.isArray(userData.commands) ) {
+                        isValid = false
+                        errorType +=' commands'
+                    }
+
+                    if (!userData.magicLevel
+                    || typeof userData.magicLevel !== 'number' ) {
+                        isValid = false
+                        errorType +=' magicLevel'
+                    }
+
+                    if (!userData.fox
+                    || !'isActive' in userData.fox
+                    || !userData.fox.startCommands || !Array.isArray(userData.fox.startCommands)
+                    || typeof userData.fox.helpCommandsCount !== 'number' ) {
+                        isValid = false
+                        errorType +=' fox'
+                    }
+
+                    if (!userData.bear
+                    || !'isActive' in userData.bear
+                    || !userData.bear.startCommands || !Array.isArray(userData.bear.startCommands)
+                    || typeof userData.bear.helpCommandsCount !== 'number' ) {
+                        isValid = false
+                        errorType +=' bear'
+                    }
+
+                    let isFoxOnMap = false
+                    let isBearOnMap = false
+                    userData.map.forEach( y => {
+                        y.forEach( x => {
+                            if (x === 'F') isFoxOnMap = true
+                            if (x === 'B') isBearOnMap = true
+                        })
+                    })
+                    if (!isFoxOnMap && userData.fox.isActive) {
+                        isValid = false
+                        errorType +=' no fox on map'
+                    }
+
+                    console.log('!isBearOnMap', !isBearOnMap)
+                    console.log('userData.bear.isActive', userData.bear.isActive)
+                    if (!isBearOnMap && userData.bear.isActive) {
+                        isValid = false
+                        errorType +=' no bear on map'
+                    }
+                } catch {
+                    errorType +=' JSON.parse'
+                    isValid = false
+                }
+
+                if (!isValid) return alert ('Неверный код уровня:' + errorType)
+
+                localStorage.setItem('gameData', JSON.stringify(userData))
                 location.reload()
             }
             
