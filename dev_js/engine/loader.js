@@ -32,7 +32,7 @@ export const sprites = {
     target_8: 'target_8.png',
     target_9: 'target_9.png',
 
-    magic_items: 'magic_items.json',
+    magic_items: 'magic_items2.json',
 
     flower: 'flower.png',
     bf_yellow: 'butterfly_yellow.json',

@@ -14,14 +14,20 @@ export default class TargetItem extends Container {
         super()
         this.position.set(x, y)
 
+        this.shadow = new Sprite( sprites.magic_items.textures[item + '_shadow'] )
+        this.shadow.anchor.set(0.5, 0.5)
+        this.minScale = 0.7 
+        this.shadow.position.set(0, 0)
+
         this.image = new Sprite( sprites.magic_items.textures[item] )
-        this.image.anchor.set(0.5, 0.6)
+        this.image.anchor.set(0.5, 0.75)
         this.image.scale.set(0.9)
         this.minY = -upOffset
         this.maxY = 0 
         this.isMoveUp = Math.random() < 0.5 ? true : false
         this.image.position.set(0, this.minY + Math.random() * upOffset)
-        this.addChild(this.image)
+
+        this.addChild(this.shadow, this.image)
 
         this.item = item
         this.starContainer = starContainer
@@ -54,6 +60,8 @@ export default class TargetItem extends Container {
         this.image.position.set(this.startData.x, this.startData.y)
         this.startData.parent.addChild(this)
         this.onOffStars(true)
+
+        this.shadow.alpha = 1
 
         tickerAdd(this)
 
@@ -105,6 +113,7 @@ export default class TargetItem extends Container {
                 this.image.y += path
                 if (this.image.y >= this.maxY) this.isMoveUp = !this.isMoveUp
             }
+            this.shadow.scale.set(this.minScale + 0.005 * this.image.position.y)
         
         } else {
             this.image.y += time.elapsedMS * NUMBER.speedY
@@ -115,6 +124,8 @@ export default class TargetItem extends Container {
                 tickerRemove(this)
                 this.sky.removeChild(this)
             }
+            this.shadow.scale.set(this.minScale + 0.005 * this.image.position.y)
+            this.shadow.alpha = this.image.alpha
         }
     }
 }
