@@ -1,6 +1,6 @@
 import { Application } from 'pixi.js'
 import { changeFocus, screenResize } from './events'
-import { preloadFonts } from './loader'
+import { preloadFonts, preloadLoaderBG } from './loader'
 
 let app = null
 let appContainer = null
@@ -9,7 +9,7 @@ let startCallback = null
 let appPointer = null
 
 const appSettings = {
-    background: 0xffffff,
+    background: 0x67bd00,
     antialias: true, // сглаживание
     resolution: 1,
     resizeTo: null

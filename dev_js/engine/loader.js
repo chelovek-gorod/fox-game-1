@@ -7,7 +7,11 @@ const paths = {
     fonts : './fonts/',
 }
 
+export const loadBG = 'loadBG'
+
 export const sprites = {
+    [loadBG]: 'load_bg.jpg',
+
     tile_bg_top: 'tile_bg_top.png',
     tile_bg_bottom: 'tile_bg_bottom.png',
 
@@ -67,7 +71,18 @@ export function preloadFonts( callback ) {
         // update font values by font family
         for(let key in fontsData) fonts[key] = fontsData[key].family
         initFontStyles()
+        preloadLoaderBG( callback )
+        console.log('fonts loaded')
+    })
+}
+
+
+export function preloadLoaderBG( callback ) {
+    Assets.add( {alias: loadBG, src: sprites.loadBG} )
+    Assets.load( loadBG ).then(data => {
+        sprites.loadBG = data
         uploadAssets( callback )
+        console.log('BG loaded')
     })
 }
 
@@ -102,6 +117,11 @@ function uploadAssets( loadingDoneCallback ) {
     }
 
     for (let sprite in sprites) {
+        if (sprite === loadBG) {
+            loading()
+            continue
+        }
+
         Assets.add( {alias: sprite, src: sprites[sprite]} )
         Assets.load( sprite ).then(data => {
             if ('data' in data && 'related_multi_packs' in data.data.meta && 'animations' in data.data) {

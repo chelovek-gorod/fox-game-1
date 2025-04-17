@@ -10,12 +10,12 @@ export function initFontStyles() {
     textStyles = {
         loading: new TextStyle({
             fontFamily: fonts.normal,
-            fontSize: 20,
-            fill: '#000000',
+            fontSize: 50,
+            fill: '#ffffff',
         
             dropShadow: true,
-            dropShadowColor: '#00ff00',
-            dropShadowBlur: 4,
+            dropShadowColor: '#000000',
+            dropShadowBlur: 12,
             dropShadowAngle: 0,
             dropShadowDistance: 0,
         }),
