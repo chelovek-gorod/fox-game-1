@@ -60,9 +60,12 @@ export default class Stack extends Container {
         })
 
         this.addChild(this.helps, this.commands, this.scrollLeft, this.scrollRight)
+
+        this.test = new Graphics()
+        this.addChild(this.test)
     }
 
-    addCommand( command ) {
+    addCommand( command ) { console.log('add', command.type)
         command.position.x -= this.scrollX
 
         if (this.commands.children.length === 0) {
@@ -85,6 +88,8 @@ export default class Stack extends Container {
     sortCommands() {
         if (this.commands.children.length === 0) return
 
+        this.test.clear()
+
         this.commands.children.sort((a, b) => a.position.x - b.position.x)
         
         let offsetX = CMD_BLOCK.offsetX
@@ -100,25 +105,39 @@ export default class Stack extends Container {
             } else if (cmd.type === COMMANDS.loop) {
                 // LOOP COMMAND
                 // if previous command is loop too -> add loopEnd offset
-                if (loop) offsetX += CMD_BLOCK.loopEnd + (loop.commandsInLoopCount === 0 ? CMD_BLOCK.loopEmptyOffset : 0)
+                if (loop) {
+                    if (loop.commandsInLoopCount > 0) offsetX += CMD_BLOCK.loopEnd
+                    else offsetX += CMD_BLOCK.loopEnd + CMD_BLOCK.loopEmptyOffset
+                }
 
                 loop = cmd
                 loop.resetLoopSize()
-                loopEndX = loop.position.x + CMD_BLOCK.loop
 
                 cmd.position.x = offsetX
                 offsetX += CMD_BLOCK.loopStart
+
+                loopEndX = loop.position.x + CMD_BLOCK.loop
+
+                this.test.moveTo(loopEndX, 320)
+                this.test.lineTo(loopEndX, 520)
+                this.test.stroke({ color: 0xff0000, width: 2 })
             } else {
                 // ACTION COMMAND
                 if (loop) {
-                    if (cmd.position.x < loopEndX) {
+                    console.log(cmd.type, 'position.x', cmd.position.x)
+                    console.log('loopEndX', loopEndX)
+                    if (cmd.position.x < loopEndX - CMD_BLOCK.loopEnd) { 
                     // add action in loop
                         loop.addLoopCommandsCount()
-                        loop.updateLoopSize()
                         loopEndX += CMD_BLOCK.action
+
+                        this.test.moveTo(loopEndX, 320)
+                        this.test.lineTo(loopEndX, 520)
+                        this.test.stroke({ color: 0xff0000, width: 2 })
                     } else {
                     // add action after loop
-                        offsetX += CMD_BLOCK.loopEnd + (loop.commandsInLoopCount === 0 ? CMD_BLOCK.loopEmptyOffset : 0)
+                        if (loop.commandsInLoopCount > 0) offsetX += CMD_BLOCK.loopEnd
+                        else offsetX += CMD_BLOCK.loopEnd + CMD_BLOCK.loopEmptyOffset
                         loopEndX = 0
                         loop = null
                     }

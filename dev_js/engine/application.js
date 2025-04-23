@@ -9,7 +9,8 @@ let startCallback = null
 let appPointer = null
 
 const appSettings = {
-    background: 0x67bd00,
+    // background: 0x67bd00,
+    background: 0xffffff,
     antialias: true, // сглаживание
     resolution: 1,
     resizeTo: null

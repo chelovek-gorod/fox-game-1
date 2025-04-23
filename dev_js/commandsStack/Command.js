@@ -147,7 +147,8 @@ export default class Command extends Container {
 
     pickUp(event) {
         // check CP state
-        if (this.dragContainer.isOnPlay || loopShell.isOpen) return
+        if (this.dragContainer.isOnPlay) return 
+        if (loopShell && loopShell.isOpen) return
 
         this.isDragging = true
         const mousePosition = event.data.getLocalPosition(this.parent)
@@ -203,11 +204,11 @@ export default class Command extends Container {
     }
     resetLoopSize() {
         this.commandsInLoopCount = 0
-        this.loopTop.width = 0
-        this.loopEnd.position.x = 35
+        this.updateLoopSize()
     }
     addLoopCommandsCount() {
         this.commandsInLoopCount++
+        this.updateLoopSize()
     }
 
     tick() {
