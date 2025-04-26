@@ -9,7 +9,7 @@ import { checkUseMessageFrom, collectTargetObject, gameWin, getTargetsCount } fr
 const star_colors = ['blue', 'purple', 'yellow', 'white', 'green']
 
 export default class Hero extends AnimatedSprite {
-    constructor(isFox, x, y, ceils, targets, magicLevel, starContainer, isCommandsAsButtons) {
+    constructor(isFox, x, y, ceils, targets, branches, magicLevel, starContainer, isCommandsAsButtons) {
         super( sprites[isFox ? 'fox' : 'bear'].animations.idle )
         this.anchor.set(0.5, isFox ? 0.7 : 0.8)
         this.position.set(x, y)
@@ -28,6 +28,7 @@ export default class Hero extends AnimatedSprite {
 
         this.ceils = ceils
         this.targets = targets
+        this.branches = branches
 
         this.direction = DIRECTION.down
         this.isLastActionForward = false // use for continue run animation
@@ -214,12 +215,35 @@ export default class Hero extends AnimatedSprite {
         this.gotoAndPlay(0)
     }
 
+    searchBranches(action) {
+        const nearestCeils = [
+            this.getCeil(DIRECTION.up), this.getCeil(DIRECTION.right),
+            this.getCeil(DIRECTION.down), this.getCeil(DIRECTION.left)
+        ]
+
+        let isBranchesNear = false
+
+        nearestCeils.forEach( c => {
+            if (!c) return
+
+            const blockage = this.branches.find( b => b.x === c.x && b.y === c.y )
+            if (blockage && blockage.isBlocked) {
+                isBranchesNear = true
+                blockage.unblock()
+            }
+        })
+
+        if (!isBranchesNear) return this.errorCommand(action)
+        if (this.isCommandsAsButtons) return this.waitNextButton()
+        return this.nextAction()
+    }
+
     useItem( action ) {
         this.isLastActionForward = false
 
         // find target in current ceil
         const target = this.targets.find( t => t.x === this.x && t.y === this.y )
-        if (!target) return this.errorCommand(action)
+        if (!target) return this.searchBranches(action)
 
         // check if game.js
         const isCollected = collectTargetObject(target)

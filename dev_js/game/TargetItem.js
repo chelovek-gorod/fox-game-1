@@ -1,12 +1,11 @@
 import { Container, Sprite } from "pixi.js";
-import { NUMBER, _2PI } from "../constants";
+import { NUMBER, _2PI, STAR_COLORS } from "../constants";
 import { getAppScreen, tickerAdd, tickerRemove } from "../engine/application";
 import { sprites } from "../engine/loader"
 import TargetButterfly from "./TargetButterfly"
 import MagicStar from "./MagicStar";
 import { EventHub, events } from "../engine/events";
 
-const star_colors = ['blue', 'purple', 'yellow', 'white', 'green']
 const upOffset = 10
 
 export default class TargetItem extends Container {
@@ -76,7 +75,7 @@ export default class TargetItem extends Container {
     }
 
     addStar() {
-        const color = star_colors[ Math.floor( Math.random() * star_colors.length ) ]
+        const color = STAR_COLORS[ Math.floor( Math.random() * STAR_COLORS.length ) ]
         this.starContainer.addChild( new MagicStar(this.x, this.y, color) )
     }
 

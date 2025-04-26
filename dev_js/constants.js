@@ -170,3 +170,12 @@ export const CMD_BLOCK = {
     scrollSize: 0,
 }
 CMD_BLOCK.scrollSize = Math.floor(CP.stackWidth * 0.5) - CMD_BLOCK.offsetX
+
+export const BLOCKAGE = {
+    starCount: 50,
+    startRate: 10,
+    alphaStep: 0.0001,
+    flyStep: 0.01,
+}
+
+export const STAR_COLORS = ['blue', 'purple', 'yellow', 'white', 'green']

@@ -11,6 +11,7 @@ import Butterfly from "./game/Butterfly"
 import TargetNumber from "./game/TargetNumber"
 import TargetItem from "./game/TargetItem"
 import ControlPanel from "./commandsStack/ControlPanel"
+import Blockage from "./game/Blockage"
 
 let game = null
 
@@ -110,6 +111,8 @@ class Game {
         this.flowersContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
         this.targetContainer = new Container()
         this.targetContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
+        this.branchesContainer = new Container()
+        this.branchesContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
         this.unitContainer = new Container()
         this.unitContainer.position.set(CEIL_HALF_SIZE, CEIL_HALF_SIZE)
         this.starContainer = new Container()
@@ -119,6 +122,7 @@ class Game {
         this.worldContainer.addChild(
             this.ceilContainer,
             this.flowersContainer,
+            this.branchesContainer,
             this.targetContainer,
             this.unitContainer,
             this.starContainer, 
@@ -235,6 +239,7 @@ class Game {
                             x, y,
                             this.ceilContainer.children,
                             this.targetContainer.children,
+                            this.branchesContainer.children,
                             gameData.magicLevel,
                             this.starContainer,
                             this.isCommandsAsButtons,
@@ -272,6 +277,12 @@ class Game {
                         this.items.push(item)
                         this.targetContainer.addChild(
                             new TargetItem( x, y, item, this.starContainer, this.skyContainer, bfColorsList )
+                        )
+                    break
+
+                    case '#':
+                        this.branchesContainer.addChild( 
+                            new Blockage( x, y, this.starContainer, this.skyContainer )
                         )
                     break
                 }

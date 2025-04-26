@@ -38,6 +38,14 @@ export const sprites = {
 
     magic_items: 'magic_items2.json',
 
+    blockage_1: 'blockage_1_top.png',
+    blockage_2: 'blockage_2_middle.png',
+    blockage_3: 'blockage_3_middle.png',
+    blockage_4: 'blockage_4_middle.png',
+    blockage_5: 'blockage_5_middle.png',
+    blockage_6: 'blockage_6_bottom.png',
+    blockage_shadow: 'blockage_shadow.png',
+
     flower: 'flower.png',
     bf_yellow: 'butterfly_yellow.json',
     bf_white: 'butterfly_white.json',

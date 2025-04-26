@@ -60,9 +60,6 @@ export default class Stack extends Container {
         })
 
         this.addChild(this.helps, this.commands, this.scrollLeft, this.scrollRight)
-
-        this.test = new Graphics()
-        this.addChild(this.test)
     }
 
     addCommand( command ) { console.log('add', command.type)
@@ -87,8 +84,6 @@ export default class Stack extends Container {
 
     sortCommands() {
         if (this.commands.children.length === 0) return
-
-        this.test.clear()
 
         this.commands.children.sort((a, b) => a.position.x - b.position.x)
         
@@ -117,10 +112,6 @@ export default class Stack extends Container {
                 offsetX += CMD_BLOCK.loopStart
 
                 loopEndX = loop.position.x + CMD_BLOCK.loop
-
-                this.test.moveTo(loopEndX, 320)
-                this.test.lineTo(loopEndX, 520)
-                this.test.stroke({ color: 0xff0000, width: 2 })
             } else {
                 // ACTION COMMAND
                 if (loop) {
@@ -130,10 +121,6 @@ export default class Stack extends Container {
                     // add action in loop
                         loop.addLoopCommandsCount()
                         loopEndX += CMD_BLOCK.action
-
-                        this.test.moveTo(loopEndX, 320)
-                        this.test.lineTo(loopEndX, 520)
-                        this.test.stroke({ color: 0xff0000, width: 2 })
                     } else {
                     // add action after loop
                         if (loop.commandsInLoopCount > 0) offsetX += CMD_BLOCK.loopEnd
