@@ -280,6 +280,11 @@ export default class Hero extends AnimatedSprite {
         const targetCeil = this.getCeil(direction)
         if (!targetCeil) return this.errorCommand(direction)
 
+        const border = this.branches.find( b => b.x === targetCeil.x && b.y === targetCeil.y )
+        if (border) return this.errorCommand(direction)
+
+        this.target = {x: targetCeil.x, y: targetCeil.y}
+
         if (this.direction !== direction) {
             this.scale.x = 1
             this.isLastActionForward = false
@@ -290,8 +295,6 @@ export default class Hero extends AnimatedSprite {
         } else {
             this.forward()
         }
-
-        this.target = {x: targetCeil.x, y: targetCeil.y}
     }
 
     forward() {
@@ -301,6 +304,9 @@ export default class Hero extends AnimatedSprite {
             if (!targetCeil) return this.errorCommand(COMMANDS.forward)
 
             this.target = {x: targetCeil.x, y: targetCeil.y}
+
+            const border = this.branches.find( b => b.x === this.target.x && b.y === this.target.y )
+            if (border) return this.errorCommand(COMMANDS.forward)
         }
 
         if (!this.isLastActionForward) {
