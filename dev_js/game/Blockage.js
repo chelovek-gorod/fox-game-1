@@ -6,7 +6,7 @@ import MagicStar from "./MagicStar";
 import { BLOCKAGE, STAR_COLORS } from "../constants";
 
 export default class Blockage extends Container {
-    constructor(x, y, starContainer, skyContainer) {
+    constructor(x, y, starContainer, skyContainer, parentContainer) {
         super()
 
         this.position.set(x, y)
@@ -15,7 +15,7 @@ export default class Blockage extends Container {
         this.starContainer = starContainer
         this.skyContainer = skyContainer
 
-        this.startData = { x: x, y: y, parent: this.parent }
+        this.startParent = parentContainer
 
         this.isBlocked = true
 
@@ -39,14 +39,14 @@ export default class Blockage extends Container {
     }
 
     restart() {
-        this.startData.parent.addChild(this)
+        this.startParent.addChild(this)
         tickerRemove(this)
 
         this.isBlocked = true
 
         this.items.forEach( item => {
-            item.position.set(this.startData.x, this.startData.y)
             item.alpha = 1
+            item.y = 0
         })
     }
 

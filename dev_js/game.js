@@ -282,7 +282,7 @@ class Game {
 
                     case '#':
                         this.branchesContainer.addChild( 
-                            new Blockage( x, y, this.starContainer, this.skyContainer )
+                            new Blockage( x, y, this.starContainer, this.skyContainer, this.branchesContainer )
                         )
                     break
                 }
